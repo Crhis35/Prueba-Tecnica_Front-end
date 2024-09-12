@@ -1,6 +1,17 @@
 'use client';
 import React from 'react';
 
+import {
+  BarChart,
+  Bar,
+  ResponsiveContainer,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+} from 'recharts';
+
 import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'react-feather';
 
@@ -16,11 +27,12 @@ import {
   Container,
   BackButton,
 } from './user-detail.styles';
+import { useTheme } from '@/libs/hoc/theme';
 
 export default function UserDetail(props: UserDetailProps) {
-  const { user } = props;
+  const { user, followers } = props;
   const router = useRouter();
-
+  const { theme } = useTheme();
   return (
     <Container>
       <BackButton onClick={() => router.push('/')}>
@@ -36,42 +48,22 @@ export default function UserDetail(props: UserDetailProps) {
             </Color>
           </Text>
         </Info>
-        <Box>
-          <span>Followers:</span>
-          <span>{user.followers}</span>
-        </Box>
-        <Box $justifyContent="center">
-          <div
-            style={{
-              flex: 'flex: 1 1 100%',
-            }}
-          >
-            <picture>
-              <source
-                srcSet={`https://github-readme-stats.vercel.app/api?username=${user.login}&show_icons=true&theme=dark`}
-                media="(prefers-color-scheme: dark)"
+        <Box $justifyContent="center" $width="100%" $height={400} pt={40}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart width={900} height={40} data={followers}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="login" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar
+                dataKey="followers"
+                name="Followers"
+                fill={theme.colors.primary}
+                width={10}
               />
-              <source
-                srcSet={`https://github-readme-stats.vercel.app/api?username=${user.login}&show_icons=true`}
-                media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
-              />
-              <img
-                src={`https://github-readme-stats.vercel.app/api?username=${user.login}&show_icons=true`}
-              />
-            </picture>
-          </div>
-          <div
-            style={{
-              flex: 'flex: 1 1 100%',
-            }}
-          >
-            <a href="https://git.io/streak-stats">
-              <img
-                src={`https://github-readme-streak-stats.herokuapp.com?user=${user.login}&theme=dark`}
-                alt="GitHub Streak"
-              />
-            </a>
-          </div>
+            </BarChart>
+          </ResponsiveContainer>
         </Box>
       </Wrapper>
     </Container>

@@ -10,13 +10,27 @@ interface UserPageProps {
   };
 }
 
+async function getUserByUsername(username: string): Promise<User> {
+  const req = await fetch(`${API_URL}/users/${username}`);
+
+  return req.json() as Promise<User>;
+}
+
 export default async function UserPage(props: UserPageProps) {
-  const req = await fetch(`${API_URL}/users/${props.params.username}`);
-  if (!req.ok) {
+  const [currentUser, followersReq] = await Promise.all([
+    getUserByUsername(props.params.username),
+    fetch(`${API_URL}/users/${props.params.username}/followers?per_page=10`),
+  ]);
+
+  if (!currentUser) {
     redirect('/');
   }
 
-  const data = (await req.json()) as User;
+  const followers = (await followersReq.json()) as User[];
 
-  return <UserDetail user={data} />;
+  const followersCounts = await Promise.all(
+    followers?.map((follow) => getUserByUsername(follow.login)),
+  );
+
+  return <UserDetail user={currentUser} followers={followersCounts} />;
 }
